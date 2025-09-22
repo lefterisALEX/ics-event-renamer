@@ -21,6 +21,8 @@ jobs:
       run: pip install ics requests
 
     - name: Merge and rename calendars
+      env:
+        ICS_URL: ${{ secrets.ICS_URL }}
       run: python rename-events.py
 
     - name: Upload to gh-pages
