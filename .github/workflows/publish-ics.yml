@@ -1,0 +1,36 @@
+name: Merge and Publish ICS
+
+on:
+  schedule:
+    - cron: '5 3 * * *'  # Every day at 03:05 UTC
+  workflow_dispatch:     # Allow manual runs
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repo
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+
+    - name: Install dependencies
+      run: pip install ics requests
+
+    - name: Merge and rename calendars
+      run: python merge_and_rename_calendars.py
+
+    - name: Upload to gh-pages
+      uses: peaceiris/actions-gh-pages@v4
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./
+        publish_branch: gh-pages
+        keep_files: true     # So existing files (like index.html) are not deleted
+        allow_empty_commit: true
+        # Only publish the ICS file
+        exclude_assets: |
+          !merged_calendar.ics
